@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,20 +13,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.rememberDrawerState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -43,6 +50,8 @@ class MainActivity : ComponentActivity() {
 enum class Screen {
     HOME,
     WIKI_LIST,
+    RECENT_ARTICLES,
+    STATISTICS,
     SETTINGS
 }
 
@@ -52,37 +61,92 @@ fun WikiHubApp() {
         mutableStateOf(Screen.HOME)
     }
 
+    val drawerState = rememberDrawerState(
+        initialValue = DrawerValue.Closed
+    )
+
+    val scope = rememberCoroutineScope()
+
+    fun navigateTo(screen: Screen) {
+        currentScreen = screen
+
+        scope.launch {
+            drawerState.close()
+        }
+    }
+
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            when (currentScreen) {
-                Screen.HOME -> {
-                    HomeScreen(
-                        onWikiListClick = {
-                            currentScreen = Screen.WIKI_LIST
-                        },
-                        onSettingsClick = {
-                            currentScreen = Screen.SETTINGS
+            ModalNavigationDrawer(
+                drawerState = drawerState,
+                drawerContent = {
+                    WikiHubDrawer(
+                        currentScreen = currentScreen,
+                        onNavigate = { screen ->
+                            navigateTo(screen)
                         }
                     )
                 }
+            ) {
+                when (currentScreen) {
+                    Screen.HOME -> {
+                        HomeScreen(
+                            onMenuClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            },
+                            onWikiListClick = {
+                                navigateTo(Screen.WIKI_LIST)
+                            },
+                            onSettingsClick = {
+                                navigateTo(Screen.SETTINGS)
+                            }
+                        )
+                    }
 
-                Screen.WIKI_LIST -> {
-                    WikiListScreen(
-                        onBackClick = {
-                            currentScreen = Screen.HOME
-                        }
-                    )
-                }
+                    Screen.WIKI_LIST -> {
+                        WikiListScreen(
+                            onMenuClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            }
+                        )
+                    }
 
-                Screen.SETTINGS -> {
-                    SettingsScreen(
-                        onBackClick = {
-                            currentScreen = Screen.HOME
-                        }
-                    )
+                    Screen.RECENT_ARTICLES -> {
+                        RecentArticlesScreen(
+                            onMenuClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            }
+                        )
+                    }
+
+                    Screen.STATISTICS -> {
+                        StatisticsScreen(
+                            onMenuClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            }
+                        )
+                    }
+
+                    Screen.SETTINGS -> {
+                        SettingsScreen(
+                            onMenuClick = {
+                                scope.launch {
+                                    drawerState.open()
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -90,24 +154,133 @@ fun WikiHubApp() {
 }
 
 @Composable
+fun WikiHubDrawer(
+    currentScreen: Screen,
+    onNavigate: (Screen) -> Unit
+) {
+    ModalDrawerSheet {
+
+        Spacer(
+            modifier = Modifier.height(24.dp)
+        )
+
+        Text(
+            text = "WikiHub",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(
+                horizontal = 24.dp,
+                vertical = 16.dp
+            )
+        )
+
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+
+        NavigationDrawerItem(
+            label = {
+                Text("ホーム")
+            },
+            selected = currentScreen == Screen.HOME,
+            onClick = {
+                onNavigate(Screen.HOME)
+            },
+            modifier = Modifier.padding(
+                horizontal = 12.dp
+            )
+        )
+
+        NavigationDrawerItem(
+            label = {
+                Text("Wiki一覧")
+            },
+            selected = currentScreen == Screen.WIKI_LIST,
+            onClick = {
+                onNavigate(Screen.WIKI_LIST)
+            },
+            modifier = Modifier.padding(
+                horizontal = 12.dp
+            )
+        )
+
+        NavigationDrawerItem(
+            label = {
+                Text("最近の記事")
+            },
+            selected = currentScreen == Screen.RECENT_ARTICLES,
+            onClick = {
+                onNavigate(Screen.RECENT_ARTICLES)
+            },
+            modifier = Modifier.padding(
+                horizontal = 12.dp
+            )
+        )
+
+        NavigationDrawerItem(
+            label = {
+                Text("統計")
+            },
+            selected = currentScreen == Screen.STATISTICS,
+            onClick = {
+                onNavigate(Screen.STATISTICS)
+            },
+            modifier = Modifier.padding(
+                horizontal = 12.dp
+            )
+        )
+
+        Spacer(
+            modifier = Modifier.height(12.dp)
+        )
+
+        NavigationDrawerItem(
+            label = {
+                Text("設定")
+            },
+            selected = currentScreen == Screen.SETTINGS,
+            onClick = {
+                onNavigate(Screen.SETTINGS)
+            },
+            modifier = Modifier.padding(
+                horizontal = 12.dp
+            )
+        )
+    }
+}
+
+@Composable
+fun WikiHubTopBar(
+    title: String,
+    onMenuClick: () -> Unit
+) {
+    TopAppBar(
+        title = {
+            Text(title)
+        },
+        navigationIcon = {
+            TextButton(
+                onClick = onMenuClick
+            ) {
+                Text(
+                    text = "☰",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+        }
+    )
+}
+
+@Composable
 fun HomeScreen(
+    onMenuClick: () -> Unit,
     onWikiListClick: () -> Unit,
     onSettingsClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text("WikiHub")
-                },
-                actions = {
-                    OutlinedButton(
-                        onClick = onSettingsClick,
-                        modifier = Modifier.padding(end = 8.dp)
-                    ) {
-                        Text("設定")
-                    }
-                }
+            WikiHubTopBar(
+                title = "WikiHub",
+                onMenuClick = onMenuClick
             )
         }
     ) { innerPadding ->
@@ -186,20 +359,30 @@ fun HomeScreen(
                     )
                 }
             }
+
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
+
+            OutlinedButton(
+                onClick = onSettingsClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("設定を開く")
+            }
         }
     }
 }
 
 @Composable
 fun WikiListScreen(
-    onBackClick: () -> Unit
+    onMenuClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text("Wiki一覧")
-                }
+            WikiHubTopBar(
+                title = "Wiki一覧",
+                onMenuClick = onMenuClick
             )
         }
     ) { innerPadding ->
@@ -221,18 +404,127 @@ fun WikiListScreen(
             )
 
             Text(
-                text = "ここに作成したWikiが表示されます。"
+                text = "作成したWikiがここに表示されます。"
             )
 
             Spacer(
                 modifier = Modifier.height(24.dp)
             )
 
-            OutlinedButton(
-                onClick = onBackClick,
+            Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("ホームに戻る")
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("まだWikiがありません。")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun RecentArticlesScreen(
+    onMenuClick: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            WikiHubTopBar(
+                title = "最近の記事",
+                onMenuClick = onMenuClick
+            )
+        }
+    ) { innerPadding ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(20.dp)
+        ) {
+
+            Text(
+                text = "最近の記事",
+                style = MaterialTheme.typography.headlineMedium
+            )
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Text(
+                text = "最近編集した記事がここに表示されます。"
+            )
+
+            Spacer(
+                modifier = Modifier.height(24.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("まだ記事がありません。")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun StatisticsScreen(
+    onMenuClick: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            WikiHubTopBar(
+                title = "統計",
+                onMenuClick = onMenuClick
+            )
+        }
+    ) { innerPadding ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .padding(20.dp)
+        ) {
+
+            Text(
+                text = "WikiHub統計",
+                style = MaterialTheme.typography.headlineMedium
+            )
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp)
+                ) {
+                    Text("Wiki数")
+                    Text("0")
+
+                    Spacer(
+                        modifier = Modifier.height(12.dp)
+                    )
+
+                    Text("記事数")
+                    Text("0")
+                }
             }
         }
     }
@@ -240,14 +532,13 @@ fun WikiListScreen(
 
 @Composable
 fun SettingsScreen(
-    onBackClick: () -> Unit
+    onMenuClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text("設定")
-                }
+            WikiHubTopBar(
+                title = "設定",
+                onMenuClick = onMenuClick
             )
         }
     ) { innerPadding ->
@@ -271,28 +562,17 @@ fun SettingsScreen(
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.padding(20.dp)
                 ) {
                     Text("設定項目")
 
-                    Text("準備中")
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+
+                    Text("これから実装します。")
                 }
-            }
-
-            Spacer(
-                modifier = Modifier.height(24.dp)
-            )
-
-            OutlinedButton(
-                onClick = onBackClick,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("ホームに戻る")
             }
         }
     }
