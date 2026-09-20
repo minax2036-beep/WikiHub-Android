@@ -14,7 +14,10 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun HomeScreen(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    wikiCount: Int,
+    onCreateWiki: () -> Unit,
+    onOpenWikiList: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -28,19 +31,20 @@ fun HomeScreen(
             text = "WikiHubへようこそ"
         )
 
+        Text(
+            text = "Wiki数: $wikiCount",
+            modifier = Modifier.padding(top = 12.dp)
+        )
+
         Button(
-            onClick = {
-                // Wiki作成機能は後で実装
-            },
+            onClick = onCreateWiki,
             modifier = Modifier.padding(top = 24.dp)
         ) {
             Text("Wikiを作成")
         }
 
         Button(
-            onClick = {
-                // Wiki一覧への移動処理は後で追加
-            },
+            onClick = onOpenWikiList,
             modifier = Modifier.padding(top = 12.dp)
         ) {
             Text("Wiki一覧を見る")
