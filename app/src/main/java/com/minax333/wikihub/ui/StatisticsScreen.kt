@@ -13,7 +13,8 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun StatisticsScreen(
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    wikiCount: Int
 ) {
     Column(
         modifier = Modifier
@@ -28,7 +29,7 @@ fun StatisticsScreen(
         )
 
         Text(
-            text = "Wiki数: 0",
+            text = "Wiki数: $wikiCount",
             modifier = Modifier.padding(top = 12.dp)
         )
 
