@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.minax333.wikihub
 
 import android.os.Bundle
