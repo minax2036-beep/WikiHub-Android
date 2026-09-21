@@ -2,9 +2,12 @@ package com.minax333.wikihub.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -21,6 +24,7 @@ import com.minax333.wikihub.data.WikiRepository
 
 @Composable
 fun WikiSettingsScreen(
+    paddingValues: PaddingValues,
     wiki: Wiki,
     wikiRepository: WikiRepository,
     onSaved: () -> Unit,
@@ -42,6 +46,8 @@ fun WikiSettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
+            .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
