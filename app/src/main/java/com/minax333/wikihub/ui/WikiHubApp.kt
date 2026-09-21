@@ -1,11 +1,11 @@
 package com.minax333.wikihub.ui
 
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,7 +66,9 @@ fun WikiHubApp() {
 
     fun reloadArticles() {
         articles = selectedWikiId
-            ?.let { articleRepository.getByWikiId(it) }
+            ?.let { wikiId ->
+                articleRepository.getByWikiId(wikiId)
+            }
             ?: emptyList()
     }
 
@@ -78,15 +80,13 @@ fun WikiHubApp() {
         reloadArticles()
     }
 
-    val selectedWiki = selectedWikiId
-        ?.let { id ->
-            wikis.firstOrNull { it.id == id }
-        }
+    val selectedWiki = selectedWikiId?.let { id ->
+        wikis.firstOrNull { it.id == id }
+    }
 
-    val selectedArticle = selectedArticleId
-        ?.let { id ->
-            articles.firstOrNull { it.id == id }
-        }
+    val selectedArticle = selectedArticleId?.let { id ->
+        articles.firstOrNull { it.id == id }
+    }
 
     val title = when (currentScreen) {
 
@@ -95,15 +95,14 @@ fun WikiHubApp() {
             selectedWiki?.name ?: currentScreen.title
         }
 
-        Screen.ARTICLE_VIEW -> {
-            selectedArticle?.title ?: "記事"
-        }
-
+        Screen.ARTICLE_VIEW,
         Screen.ARTICLE_EDIT -> {
-            selectedArticle?.title ?: "記事編集"
+            selectedArticle?.title ?: currentScreen.title
         }
 
-        else -> currentScreen.title
+        else -> {
+            currentScreen.title
+        }
     }
 
     ModalNavigationDrawer(
@@ -112,7 +111,8 @@ fun WikiHubApp() {
             ModalDrawerSheet {
                 WikiHubDrawer(
                     currentScreen = currentScreen,
-                    onNavigate = { screen ->
+                    onScreenSelected = { screen ->
+
                         currentScreen = screen
 
                         scope.launch {
@@ -141,6 +141,7 @@ fun WikiHubApp() {
 
                 Screen.HOME -> {
                     HomeScreen(
+                        paddingValues = paddingValues,
                         wikiCount = wikis.size,
                         onCreateWiki = {
                             currentScreen = Screen.WIKI_CREATE
@@ -153,13 +154,16 @@ fun WikiHubApp() {
 
                 Screen.WIKI_LIST -> {
                     WikiListScreen(
+                        paddingValues = paddingValues,
                         wikis = wikis,
                         onCreateWiki = {
                             currentScreen = Screen.WIKI_CREATE
                         },
-                        onOpenWiki = { wikiId ->
-                            selectedWikiId = wikiId
+                        onOpenWiki = { wiki ->
+
+                            selectedWikiId = wiki.id
                             selectedArticleId = null
+
                             currentScreen = Screen.WIKI_HOME
                         }
                     )
@@ -167,31 +171,35 @@ fun WikiHubApp() {
 
                 Screen.WIKI_CREATE -> {
                     WikiCreateScreen(
-                        wikiRepository = wikiRepository,
+                        paddingValues = paddingValues,
+                        repository = wikiRepository,
                         onCreated = { wikiId ->
+
                             reloadWikis()
 
                             selectedWikiId = wikiId
                             selectedArticleId = null
+
                             currentScreen = Screen.WIKI_HOME
                         },
-                        onCancel = {
+                        onBack = {
                             currentScreen = Screen.WIKI_LIST
                         }
                     )
                 }
 
                 Screen.WIKI_HOME -> {
-                    selectedWiki?.let { wiki ->
 
+                    if (selectedWiki != null) {
                         WikiHomeScreen(
-                            wiki = wiki,
+                            wiki = selectedWiki,
                             articles = articles,
                             onCreateArticle = {
                                 selectedArticleId = null
                                 currentScreen = Screen.ARTICLE_CREATE
                             },
                             onOpenArticle = { articleId ->
+
                                 selectedArticleId = articleId
                                 currentScreen = Screen.ARTICLE_VIEW
                             },
@@ -199,6 +207,7 @@ fun WikiHubApp() {
                                 currentScreen = Screen.WIKI_SETTINGS
                             },
                             onBackToList = {
+                                selectedArticleId = null
                                 currentScreen = Screen.WIKI_LIST
                             }
                         )
@@ -206,18 +215,19 @@ fun WikiHubApp() {
                 }
 
                 Screen.WIKI_SETTINGS -> {
-                    selectedWiki?.let { wiki ->
 
+                    if (selectedWiki != null) {
                         WikiSettingsScreen(
-                            wiki = wiki,
-                            wikiRepository = wikiRepository,
+                            wiki = selectedWiki,
+                            paddingValues = paddingValues,
+                            repository = wikiRepository,
                             onSaved = {
                                 reloadWikis()
                             },
                             onDeleted = {
 
                                 articleRepository.deleteByWikiId(
-                                    wiki.id
+                                    selectedWiki.id
                                 )
 
                                 reloadWikis()
@@ -227,7 +237,7 @@ fun WikiHubApp() {
 
                                 currentScreen = Screen.WIKI_LIST
                             },
-                            onCancel = {
+                            onBack = {
                                 currentScreen = Screen.WIKI_HOME
                             }
                         )
@@ -235,10 +245,10 @@ fun WikiHubApp() {
                 }
 
                 Screen.ARTICLE_CREATE -> {
-                    selectedWiki?.let { wiki ->
 
+                    if (selectedWiki != null) {
                         ArticleCreateScreen(
-                            wikiId = wiki.id,
+                            wikiId = selectedWiki.id,
                             articles = articles,
                             articleRepository = articleRepository,
                             onCreated = { articleId ->
@@ -256,17 +266,19 @@ fun WikiHubApp() {
                 }
 
                 Screen.ARTICLE_VIEW -> {
-                    selectedArticle?.let { article ->
 
+                    if (selectedArticle != null) {
                         ArticleViewScreen(
-                            article = article,
+                            article = selectedArticle,
+
                             onEdit = {
                                 currentScreen = Screen.ARTICLE_EDIT
                             },
+
                             onDelete = {
 
                                 articleRepository.delete(
-                                    article.id
+                                    selectedArticle.id
                                 )
 
                                 reloadArticles()
@@ -274,9 +286,11 @@ fun WikiHubApp() {
                                 selectedArticleId = null
                                 currentScreen = Screen.WIKI_HOME
                             },
+
                             onOpenArticle = { articleId ->
                                 selectedArticleId = articleId
                             },
+
                             onBack = {
                                 selectedArticleId = null
                                 currentScreen = Screen.WIKI_HOME
@@ -286,12 +300,13 @@ fun WikiHubApp() {
                 }
 
                 Screen.ARTICLE_EDIT -> {
-                    selectedArticle?.let { article ->
 
+                    if (selectedArticle != null) {
                         ArticleEditScreen(
-                            article = article,
+                            article = selectedArticle,
                             articles = articles,
                             articleRepository = articleRepository,
+
                             onSaved = { articleId ->
 
                                 reloadArticles()
@@ -299,6 +314,7 @@ fun WikiHubApp() {
                                 selectedArticleId = articleId
                                 currentScreen = Screen.ARTICLE_VIEW
                             },
+
                             onCancel = {
                                 currentScreen = Screen.ARTICLE_VIEW
                             }
@@ -307,18 +323,23 @@ fun WikiHubApp() {
                 }
 
                 Screen.RECENT_ARTICLES -> {
-                    RecentArticlesScreen()
+                    RecentArticlesScreen(
+                        paddingValues = paddingValues
+                    )
                 }
 
                 Screen.STATISTICS -> {
                     StatisticsScreen(
+                        paddingValues = paddingValues,
                         wikiCount = wikis.size,
                         articleCount = articleRepository.getAll().size
                     )
                 }
 
                 Screen.SETTINGS -> {
-                    SettingsScreen()
+                    SettingsScreen(
+                        paddingValues = paddingValues
+                    )
                 }
             }
         }
