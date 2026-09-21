@@ -2,6 +2,7 @@ package com.minax333.wikihub.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import com.minax333.wikihub.data.Wiki
 
 @Composable
 fun WikiHomeScreen(
+    paddingValues: PaddingValues,
     wiki: Wiki,
     articles: List<Article>,
     onCreateArticle: () -> Unit,
@@ -31,6 +33,7 @@ fun WikiHomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .padding(16.dp)
     ) {
 
