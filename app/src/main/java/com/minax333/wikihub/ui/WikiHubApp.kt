@@ -173,17 +173,17 @@ fun WikiHubApp() {
                     WikiCreateScreen(
                         paddingValues = paddingValues,
                         repository = wikiRepository,
-                        onCreated = { wikiId ->
+                        onBack = {
+                            currentScreen = Screen.WIKI_LIST
+                        },
+                        onCreated = { wiki ->
 
                             reloadWikis()
 
-                            selectedWikiId = wikiId
+                            selectedWikiId = wiki.id
                             selectedArticleId = null
 
                             currentScreen = Screen.WIKI_HOME
-                        },
-                        onBack = {
-                            currentScreen = Screen.WIKI_LIST
                         }
                     )
                 }
@@ -219,8 +219,7 @@ fun WikiHubApp() {
                     if (selectedWiki != null) {
                         WikiSettingsScreen(
                             wiki = selectedWiki,
-                            paddingValues = paddingValues,
-                            repository = wikiRepository,
+                            wikiRepository = wikiRepository,
                             onSaved = {
                                 reloadWikis()
                             },
@@ -237,7 +236,7 @@ fun WikiHubApp() {
 
                                 currentScreen = Screen.WIKI_LIST
                             },
-                            onBack = {
+                            onCancel = {
                                 currentScreen = Screen.WIKI_HOME
                             }
                         )
@@ -330,7 +329,6 @@ fun WikiHubApp() {
 
                 Screen.STATISTICS -> {
                     StatisticsScreen(
-                        paddingValues = paddingValues,
                         wikiCount = wikis.size,
                         articleCount = articleRepository.getAll().size
                     )
