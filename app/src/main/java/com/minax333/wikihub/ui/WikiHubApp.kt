@@ -192,6 +192,7 @@ fun WikiHubApp() {
 
                     if (selectedWiki != null) {
                         WikiHomeScreen(
+                            paddingValues = paddingValues,
                             wiki = selectedWiki,
                             articles = articles,
                             onCreateArticle = {
@@ -218,6 +219,7 @@ fun WikiHubApp() {
 
                     if (selectedWiki != null) {
                         WikiSettingsScreen(
+                            paddingValues = paddingValues,
                             wiki = selectedWiki,
                             wikiRepository = wikiRepository,
                             onSaved = {
@@ -329,6 +331,7 @@ fun WikiHubApp() {
 
                 Screen.STATISTICS -> {
                     StatisticsScreen(
+                        paddingValues = paddingValues,
                         wikiCount = wikis.size,
                         articleCount = articleRepository.getAll().size
                     )
