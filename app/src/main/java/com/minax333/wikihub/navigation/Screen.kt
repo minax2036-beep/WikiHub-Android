@@ -11,5 +11,9 @@ enum class Screen(
 
     WIKI_CREATE("Wiki作成"),
     WIKI_HOME("Wiki"),
-    WIKI_SETTINGS("Wiki設定")
+    WIKI_SETTINGS("Wiki設定"),
+
+    ARTICLE_CREATE("記事作成"),
+    ARTICLE_VIEW("記事"),
+    ARTICLE_EDIT("記事編集")
 }
