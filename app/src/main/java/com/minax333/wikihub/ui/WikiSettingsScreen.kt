@@ -1,12 +1,14 @@
 package com.minax333.wikihub.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,12 +21,11 @@ import com.minax333.wikihub.data.WikiRepository
 
 @Composable
 fun WikiSettingsScreen(
-    paddingValues: PaddingValues,
     wiki: Wiki,
-    repository: WikiRepository,
+    wikiRepository: WikiRepository,
     onSaved: () -> Unit,
     onDeleted: () -> Unit,
-    onBack: () -> Unit
+    onCancel: () -> Unit
 ) {
     var name by remember(wiki.id) {
         mutableStateOf(wiki.name)
@@ -40,9 +41,11 @@ fun WikiSettingsScreen(
 
     Column(
         modifier = Modifier
-            .padding(paddingValues)
-            .padding(16.dp)
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+
         OutlinedTextField(
             value = name,
             onValueChange = {
@@ -51,8 +54,7 @@ fun WikiSettingsScreen(
             label = {
                 Text("Wiki名")
             },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
@@ -63,16 +65,14 @@ fun WikiSettingsScreen(
             label = {
                 Text("説明")
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp),
-            minLines = 4
+            modifier = Modifier.fillMaxWidth()
         )
 
         Button(
             onClick = {
+
                 if (name.trim().isNotEmpty()) {
-                    repository.update(
+                    wikiRepository.update(
                         id = wiki.id,
                         name = name.trim(),
                         description = description.trim()
@@ -81,60 +81,50 @@ fun WikiSettingsScreen(
                     onSaved()
                 }
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text("変更を保存")
-        }
-
-        Button(
-            onClick = onBack,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp)
-        ) {
-            Text("戻る")
+            Text("保存")
         }
 
         Button(
             onClick = {
                 showDeleteConfirm = true
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 24.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Text("Wikiを削除")
         }
 
+        TextButton(
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("キャンセル")
+        }
+
         if (showDeleteConfirm) {
+
             Text(
-                text = "このWikiを削除しますか？",
-                modifier = Modifier.padding(top = 16.dp)
+                "本当にこのWikiを削除しますか？"
             )
 
             Button(
                 onClick = {
-                    repository.delete(wiki.id)
+                    wikiRepository.delete(wiki.id)
                     onDeleted()
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("削除する")
             }
 
-            Button(
+            TextButton(
                 onClick = {
                     showDeleteConfirm = false
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text("キャンセル")
+                Text("戻る")
             }
         }
     }
