@@ -53,11 +53,15 @@ fun WikiHubApp() {
     }
 
     var wikis by remember {
-        mutableStateOf(wikiRepository.getAll())
+        mutableStateOf(
+            wikiRepository.getAll()
+        )
     }
 
     var articles by remember {
-        mutableStateOf<List<Article>>(emptyList())
+        mutableStateOf<List<Article>>(
+            emptyList()
+        )
     }
 
     fun reloadWikis() {
@@ -65,11 +69,14 @@ fun WikiHubApp() {
     }
 
     fun reloadArticles() {
-        articles = selectedWikiId
-            ?.let { wikiId ->
-                articleRepository.getByWikiId(wikiId)
-            }
-            ?: emptyList()
+        articles =
+            selectedWikiId
+                ?.let { wikiId ->
+                    articleRepository.getByWikiId(
+                        wikiId
+                    )
+                }
+                ?: emptyList()
     }
 
     LaunchedEffect(Unit) {
@@ -80,24 +87,32 @@ fun WikiHubApp() {
         reloadArticles()
     }
 
-    val selectedWiki = selectedWikiId?.let { id ->
-        wikis.firstOrNull { it.id == id }
-    }
+    val selectedWiki =
+        selectedWikiId?.let { id ->
+            wikis.firstOrNull {
+                it.id == id
+            }
+        }
 
-    val selectedArticle = selectedArticleId?.let { id ->
-        articles.firstOrNull { it.id == id }
-    }
+    val selectedArticle =
+        selectedArticleId?.let { id ->
+            articles.firstOrNull {
+                it.id == id
+            }
+        }
 
     val title = when (currentScreen) {
 
         Screen.WIKI_HOME,
         Screen.WIKI_SETTINGS -> {
-            selectedWiki?.name ?: currentScreen.title
+            selectedWiki?.name
+                ?: currentScreen.title
         }
 
         Screen.ARTICLE_VIEW,
         Screen.ARTICLE_EDIT -> {
-            selectedArticle?.title ?: currentScreen.title
+            selectedArticle?.title
+                ?: currentScreen.title
         }
 
         else -> {
@@ -108,6 +123,7 @@ fun WikiHubApp() {
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
+
             ModalDrawerSheet {
 
                 WikiHubDrawer(
@@ -127,9 +143,11 @@ fun WikiHubApp() {
 
         Scaffold(
             topBar = {
+
                 WikiHubTopBar(
                     title = title,
                     onMenuClick = {
+
                         scope.launch {
                             drawerState.open()
                         }
@@ -146,10 +164,12 @@ fun WikiHubApp() {
                         paddingValues = paddingValues,
                         wikiCount = wikis.size,
                         onCreateWiki = {
-                            currentScreen = Screen.WIKI_CREATE
+                            currentScreen =
+                                Screen.WIKI_CREATE
                         },
                         onOpenWikiList = {
-                            currentScreen = Screen.WIKI_LIST
+                            currentScreen =
+                                Screen.WIKI_LIST
                         }
                     )
                 }
@@ -160,14 +180,19 @@ fun WikiHubApp() {
                         paddingValues = paddingValues,
                         wikis = wikis,
                         onCreateWiki = {
-                            currentScreen = Screen.WIKI_CREATE
+                            currentScreen =
+                                Screen.WIKI_CREATE
                         },
                         onOpenWiki = { wiki ->
 
-                            selectedWikiId = wiki.id
-                            selectedArticleId = null
+                            selectedWikiId =
+                                wiki.id
 
-                            currentScreen = Screen.WIKI_HOME
+                            selectedArticleId =
+                                null
+
+                            currentScreen =
+                                Screen.WIKI_HOME
                         }
                     )
                 }
@@ -178,16 +203,22 @@ fun WikiHubApp() {
                         paddingValues = paddingValues,
                         repository = wikiRepository,
                         onBack = {
-                            currentScreen = Screen.WIKI_LIST
+
+                            currentScreen =
+                                Screen.WIKI_LIST
                         },
                         onCreated = { wiki ->
 
                             reloadWikis()
 
-                            selectedWikiId = wiki.id
-                            selectedArticleId = null
+                            selectedWikiId =
+                                wiki.id
 
-                            currentScreen = Screen.WIKI_HOME
+                            selectedArticleId =
+                                null
+
+                            currentScreen =
+                                Screen.WIKI_HOME
                         }
                     )
                 }
@@ -203,15 +234,18 @@ fun WikiHubApp() {
 
                             onCreateArticle = {
 
-                                selectedArticleId = null
+                                selectedArticleId =
+                                    null
 
                                 currentScreen =
                                     Screen.ARTICLE_CREATE
                             },
 
-                            onOpenArticle = { articleId ->
+                            onOpenArticle = {
+                                articleId ->
 
-                                selectedArticleId = articleId
+                                selectedArticleId =
+                                    articleId
 
                                 currentScreen =
                                     Screen.ARTICLE_VIEW
@@ -225,7 +259,8 @@ fun WikiHubApp() {
 
                             onBackToList = {
 
-                                selectedArticleId = null
+                                selectedArticleId =
+                                    null
 
                                 currentScreen =
                                     Screen.WIKI_LIST
@@ -239,9 +274,11 @@ fun WikiHubApp() {
                     if (selectedWiki != null) {
 
                         WikiSettingsScreen(
-                            paddingValues = paddingValues,
+                            paddingValues =
+                                paddingValues,
                             wiki = selectedWiki,
-                            wikiRepository = wikiRepository,
+                            wikiRepository =
+                                wikiRepository,
 
                             onSaved = {
 
@@ -250,14 +287,18 @@ fun WikiHubApp() {
 
                             onDeleted = {
 
-                                articleRepository.deleteByWikiId(
-                                    selectedWiki.id
-                                )
+                                articleRepository
+                                    .deleteByWikiId(
+                                        selectedWiki.id
+                                    )
 
                                 reloadWikis()
 
-                                selectedWikiId = null
-                                selectedArticleId = null
+                                selectedWikiId =
+                                    null
+
+                                selectedArticleId =
+                                    null
 
                                 currentScreen =
                                     Screen.WIKI_LIST
@@ -277,16 +318,22 @@ fun WikiHubApp() {
                     if (selectedWiki != null) {
 
                         ArticleCreateScreen(
-                            paddingValues = paddingValues,
-                            wikiId = selectedWiki.id,
-                            articles = articles,
-                            articleRepository = articleRepository,
+                            paddingValues =
+                                paddingValues,
+                            wikiId =
+                                selectedWiki.id,
+                            articles =
+                                articles,
+                            articleRepository =
+                                articleRepository,
 
-                            onCreated = { articleId ->
+                            onCreated = {
+                                articleId ->
 
                                 reloadArticles()
 
-                                selectedArticleId = articleId
+                                selectedArticleId =
+                                    articleId
 
                                 currentScreen =
                                     Screen.ARTICLE_VIEW
@@ -306,7 +353,10 @@ fun WikiHubApp() {
                     if (selectedArticle != null) {
 
                         ArticleViewScreen(
-                            article = selectedArticle,
+                            paddingValues =
+                                paddingValues,
+                            article =
+                                selectedArticle,
 
                             onEdit = {
 
@@ -322,20 +372,24 @@ fun WikiHubApp() {
 
                                 reloadArticles()
 
-                                selectedArticleId = null
+                                selectedArticleId =
+                                    null
 
                                 currentScreen =
                                     Screen.WIKI_HOME
                             },
 
-                            onOpenArticle = { articleId ->
+                            onOpenArticle = {
+                                articleId ->
 
-                                selectedArticleId = articleId
+                                selectedArticleId =
+                                    articleId
                             },
 
                             onBack = {
 
-                                selectedArticleId = null
+                                selectedArticleId =
+                                    null
 
                                 currentScreen =
                                     Screen.WIKI_HOME
@@ -349,16 +403,22 @@ fun WikiHubApp() {
                     if (selectedArticle != null) {
 
                         ArticleEditScreen(
-                            paddingValues = paddingValues,
-                            article = selectedArticle,
-                            articles = articles,
-                            articleRepository = articleRepository,
+                            paddingValues =
+                                paddingValues,
+                            article =
+                                selectedArticle,
+                            articles =
+                                articles,
+                            articleRepository =
+                                articleRepository,
 
-                            onSaved = { articleId ->
+                            onSaved = {
+                                articleId ->
 
                                 reloadArticles()
 
-                                selectedArticleId = articleId
+                                selectedArticleId =
+                                    articleId
 
                                 currentScreen =
                                     Screen.ARTICLE_VIEW
@@ -376,24 +436,30 @@ fun WikiHubApp() {
                 Screen.RECENT_ARTICLES -> {
 
                     RecentArticlesScreen(
-                        paddingValues = paddingValues
+                        paddingValues =
+                            paddingValues
                     )
                 }
 
                 Screen.STATISTICS -> {
 
                     StatisticsScreen(
-                        paddingValues = paddingValues,
-                        wikiCount = wikis.size,
+                        paddingValues =
+                            paddingValues,
+                        wikiCount =
+                            wikis.size,
                         articleCount =
-                            articleRepository.getAll().size
+                            articleRepository
+                                .getAll()
+                                .size
                     )
                 }
 
                 Screen.SETTINGS -> {
 
                     SettingsScreen(
-                        paddingValues = paddingValues
+                        paddingValues =
+                            paddingValues
                     )
                 }
             }
