@@ -7,14 +7,18 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -36,6 +40,7 @@ import com.minax333.wikihub.data.ArticleBlock
 
 @Composable
 fun ArticleEditorScreen(
+    paddingValues: PaddingValues,
     wikiId: String,
     article: Article?,
     existingArticles: List<Article>,
@@ -102,8 +107,11 @@ fun ArticleEditorScreen(
         ) { uri ->
             uri?.let {
                 persistUri(it)
+
                 addBlock(
-                    ArticleBlock.Image(it.toString())
+                    ArticleBlock.Image(
+                        it.toString()
+                    )
                 )
             }
         }
@@ -114,8 +122,11 @@ fun ArticleEditorScreen(
         ) { uri ->
             uri?.let {
                 persistUri(it)
+
                 addBlock(
-                    ArticleBlock.Video(it.toString())
+                    ArticleBlock.Video(
+                        it.toString()
+                    )
                 )
             }
         }
@@ -126,8 +137,11 @@ fun ArticleEditorScreen(
         ) { uri ->
             uri?.let {
                 persistUri(it)
+
                 addBlock(
-                    ArticleBlock.Audio(it.toString())
+                    ArticleBlock.Audio(
+                        it.toString()
+                    )
                 )
             }
         }
@@ -190,6 +204,7 @@ fun ArticleEditorScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .padding(paddingValues)
             .padding(16.dp)
     ) {
 
@@ -197,11 +212,19 @@ fun ArticleEditorScreen(
             value = title,
             onValueChange = {
                 title = it
+                errorMessage = null
             },
             label = {
                 Text("記事タイトル")
             },
-            modifier = Modifier.fillMaxWidth(),
+            placeholder = {
+                Text("記事のタイトルを入力")
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .sizeIn(
+                    minHeight = 56.dp
+                ),
             singleLine = true
         )
 
@@ -209,95 +232,96 @@ fun ArticleEditorScreen(
             modifier = Modifier.height(12.dp)
         )
 
-        Text("ブロックを追加")
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedButton(
-                onClick = {
-                    addBlock(ArticleBlock.Text(""))
-                }
-            ) {
-                Text("テキスト")
-            }
-
-            OutlinedButton(
-                onClick = {
-                    imageLauncher.launch(
-                        arrayOf("image/*")
-                    )
-                }
-            ) {
-                Text("画像")
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedButton(
-                onClick = {
-                    videoLauncher.launch(
-                        arrayOf("video/*")
-                    )
-                }
-            ) {
-                Text("動画")
-            }
-
-            OutlinedButton(
-                onClick = {
-                    audioLauncher.launch(
-                        arrayOf("audio/*")
-                    )
-                }
-            ) {
-                Text("音声")
-            }
-
-            OutlinedButton(
-                onClick = {
-                    showLinkDialog = true
-                }
-            ) {
-                Text("内部リンク")
-            }
-        }
-
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
-
-        HorizontalDivider()
-
-        Spacer(
-            modifier = Modifier.height(8.dp)
-        )
-
-        LazyColumn(
+        Column(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
         ) {
 
-            items(
-                items = blocks.indices.toList(),
-                key = { it }
-            ) { index ->
+            Text("ブロックを追加")
 
-                val block = blocks[index]
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        addBlock(
+                            ArticleBlock.Text("")
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("テキスト")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        imageLauncher.launch(
+                            arrayOf("image/*")
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("画像")
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        videoLauncher.launch(
+                            arrayOf("video/*")
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("動画")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        audioLauncher.launch(
+                            arrayOf("audio/*")
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("音声")
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        showLinkDialog = true
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("内部リンク")
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            HorizontalDivider()
+
+            Spacer(
+                modifier = Modifier.height(12.dp)
+            )
+
+            blocks.forEachIndexed { index, block ->
 
                 when (block) {
 
@@ -380,7 +404,9 @@ fun ArticleEditorScreen(
                                     modifier = Modifier.height(4.dp)
                                 )
 
-                                Text("リンク先: ${block.label}")
+                                Text(
+                                    "リンク先: ${block.label}"
+                                )
 
                                 Spacer(
                                     modifier = Modifier.height(4.dp)
@@ -401,48 +427,63 @@ fun ArticleEditorScreen(
                         }
                     }
                 }
-            }
-        }
 
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage!!
-            )
+                if (index < blocks.lastIndex) {
+                    Spacer(
+                        modifier = Modifier.height(8.dp)
+                    )
+                }
+            }
+
+            if (errorMessage != null) {
+                Spacer(
+                    modifier = Modifier.height(12.dp)
+                )
+
+                Text(
+                    text = errorMessage!!
+                )
+            }
 
             Spacer(
-                modifier = Modifier.height(8.dp)
+                modifier = Modifier.height(12.dp)
             )
-        }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            OutlinedButton(
-                onClick = onCancel,
-                modifier = Modifier.weight(1f)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("キャンセル")
+                OutlinedButton(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("キャンセル")
+                }
+
+                Button(
+                    onClick = {
+                        if (title.trim().isEmpty()) {
+                            errorMessage =
+                                "記事タイトルを入力してください。"
+                            return@Button
+                        }
+
+                        errorMessage = null
+
+                        onSave(
+                            title.trim(),
+                            blocks
+                        )
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("保存")
+                }
             }
 
-            Button(
-                onClick = {
-                    if (title.trim().isEmpty()) {
-                        errorMessage = "記事タイトルを入力してください。"
-                        return@Button
-                    }
-
-                    errorMessage = null
-
-                    onSave(
-                        title.trim(),
-                        blocks
-                    )
-                },
-                modifier = Modifier.weight(1f)
-            ) {
-                Text("保存")
-            }
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
         }
     }
 }
