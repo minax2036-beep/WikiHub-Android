@@ -109,6 +109,7 @@ fun WikiHubApp() {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
+
                 WikiHubDrawer(
                     currentScreen = currentScreen,
                     onScreenSelected = { screen ->
@@ -140,6 +141,7 @@ fun WikiHubApp() {
             when (currentScreen) {
 
                 Screen.HOME -> {
+
                     HomeScreen(
                         paddingValues = paddingValues,
                         wikiCount = wikis.size,
@@ -153,6 +155,7 @@ fun WikiHubApp() {
                 }
 
                 Screen.WIKI_LIST -> {
+
                     WikiListScreen(
                         paddingValues = paddingValues,
                         wikis = wikis,
@@ -170,6 +173,7 @@ fun WikiHubApp() {
                 }
 
                 Screen.WIKI_CREATE -> {
+
                     WikiCreateScreen(
                         paddingValues = paddingValues,
                         repository = wikiRepository,
@@ -191,25 +195,40 @@ fun WikiHubApp() {
                 Screen.WIKI_HOME -> {
 
                     if (selectedWiki != null) {
+
                         WikiHomeScreen(
                             paddingValues = paddingValues,
                             wiki = selectedWiki,
                             articles = articles,
+
                             onCreateArticle = {
+
                                 selectedArticleId = null
-                                currentScreen = Screen.ARTICLE_CREATE
+
+                                currentScreen =
+                                    Screen.ARTICLE_CREATE
                             },
+
                             onOpenArticle = { articleId ->
 
                                 selectedArticleId = articleId
-                                currentScreen = Screen.ARTICLE_VIEW
+
+                                currentScreen =
+                                    Screen.ARTICLE_VIEW
                             },
+
                             onSettings = {
-                                currentScreen = Screen.WIKI_SETTINGS
+
+                                currentScreen =
+                                    Screen.WIKI_SETTINGS
                             },
+
                             onBackToList = {
+
                                 selectedArticleId = null
-                                currentScreen = Screen.WIKI_LIST
+
+                                currentScreen =
+                                    Screen.WIKI_LIST
                             }
                         )
                     }
@@ -218,13 +237,17 @@ fun WikiHubApp() {
                 Screen.WIKI_SETTINGS -> {
 
                     if (selectedWiki != null) {
+
                         WikiSettingsScreen(
                             paddingValues = paddingValues,
                             wiki = selectedWiki,
                             wikiRepository = wikiRepository,
+
                             onSaved = {
+
                                 reloadWikis()
                             },
+
                             onDeleted = {
 
                                 articleRepository.deleteByWikiId(
@@ -236,10 +259,14 @@ fun WikiHubApp() {
                                 selectedWikiId = null
                                 selectedArticleId = null
 
-                                currentScreen = Screen.WIKI_LIST
+                                currentScreen =
+                                    Screen.WIKI_LIST
                             },
+
                             onCancel = {
-                                currentScreen = Screen.WIKI_HOME
+
+                                currentScreen =
+                                    Screen.WIKI_HOME
                             }
                         )
                     }
@@ -248,19 +275,27 @@ fun WikiHubApp() {
                 Screen.ARTICLE_CREATE -> {
 
                     if (selectedWiki != null) {
+
                         ArticleCreateScreen(
+                            paddingValues = paddingValues,
                             wikiId = selectedWiki.id,
                             articles = articles,
                             articleRepository = articleRepository,
+
                             onCreated = { articleId ->
 
                                 reloadArticles()
 
                                 selectedArticleId = articleId
-                                currentScreen = Screen.ARTICLE_VIEW
+
+                                currentScreen =
+                                    Screen.ARTICLE_VIEW
                             },
+
                             onCancel = {
-                                currentScreen = Screen.WIKI_HOME
+
+                                currentScreen =
+                                    Screen.WIKI_HOME
                             }
                         )
                     }
@@ -269,11 +304,14 @@ fun WikiHubApp() {
                 Screen.ARTICLE_VIEW -> {
 
                     if (selectedArticle != null) {
+
                         ArticleViewScreen(
                             article = selectedArticle,
 
                             onEdit = {
-                                currentScreen = Screen.ARTICLE_EDIT
+
+                                currentScreen =
+                                    Screen.ARTICLE_EDIT
                             },
 
                             onDelete = {
@@ -285,16 +323,22 @@ fun WikiHubApp() {
                                 reloadArticles()
 
                                 selectedArticleId = null
-                                currentScreen = Screen.WIKI_HOME
+
+                                currentScreen =
+                                    Screen.WIKI_HOME
                             },
 
                             onOpenArticle = { articleId ->
+
                                 selectedArticleId = articleId
                             },
 
                             onBack = {
+
                                 selectedArticleId = null
-                                currentScreen = Screen.WIKI_HOME
+
+                                currentScreen =
+                                    Screen.WIKI_HOME
                             }
                         )
                     }
@@ -303,7 +347,9 @@ fun WikiHubApp() {
                 Screen.ARTICLE_EDIT -> {
 
                     if (selectedArticle != null) {
+
                         ArticleEditScreen(
+                            paddingValues = paddingValues,
                             article = selectedArticle,
                             articles = articles,
                             articleRepository = articleRepository,
@@ -313,31 +359,39 @@ fun WikiHubApp() {
                                 reloadArticles()
 
                                 selectedArticleId = articleId
-                                currentScreen = Screen.ARTICLE_VIEW
+
+                                currentScreen =
+                                    Screen.ARTICLE_VIEW
                             },
 
                             onCancel = {
-                                currentScreen = Screen.ARTICLE_VIEW
+
+                                currentScreen =
+                                    Screen.ARTICLE_VIEW
                             }
                         )
                     }
                 }
 
                 Screen.RECENT_ARTICLES -> {
+
                     RecentArticlesScreen(
                         paddingValues = paddingValues
                     )
                 }
 
                 Screen.STATISTICS -> {
+
                     StatisticsScreen(
                         paddingValues = paddingValues,
                         wikiCount = wikis.size,
-                        articleCount = articleRepository.getAll().size
+                        articleCount =
+                            articleRepository.getAll().size
                     )
                 }
 
                 Screen.SETTINGS -> {
+
                     SettingsScreen(
                         paddingValues = paddingValues
                     )
