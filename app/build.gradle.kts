@@ -11,8 +11,29 @@ android {
         applicationId = "com.minax333.wikihub"
         minSdk = 23
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(
+                System.getenv("WIKIHUB_KEYSTORE_FILE")
+                    ?: error("WIKIHUB_KEYSTORE_FILE is not set")
+            )
+            storePassword = System.getenv("WIKIHUB_KEYSTORE_PASSWORD")
+                ?: error("WIKIHUB_KEYSTORE_PASSWORD is not set")
+            keyAlias = System.getenv("WIKIHUB_KEY_ALIAS")
+                ?: error("WIKIHUB_KEY_ALIAS is not set")
+            keyPassword = System.getenv("WIKIHUB_KEY_PASSWORD")
+                ?: error("WIKIHUB_KEY_PASSWORD is not set")
+        }
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.getByName("release")
+        }
     }
 
     buildFeatures {
