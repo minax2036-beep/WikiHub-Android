@@ -25,11 +25,22 @@ jobs:
         with:
           gradle-version: '9.6.0'
 
-      - name: Build APK
-        run: gradle :app:assembleDebug
+      - name: Prepare signing key
+        env:
+          KEYSTORE_BASE64: ${{ secrets.WIKIHUB_KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/wikihub-release.jks"
+
+      - name: Build signed APK
+        env:
+          WIKIHUB_KEYSTORE_FILE: ${{ runner.temp }}/wikihub-release.jks
+          WIKIHUB_KEYSTORE_PASSWORD: ${{ secrets.WIKIHUB_KEYSTORE_PASSWORD }}
+          WIKIHUB_KEY_ALIAS: ${{ secrets.WIKIHUB_KEY_ALIAS }}
+          WIKIHUB_KEY_PASSWORD: ${{ secrets.WIKIHUB_KEY_PASSWORD }}
+        run: gradle :app:assembleRelease
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: WikiHub-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: WikiHub-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
