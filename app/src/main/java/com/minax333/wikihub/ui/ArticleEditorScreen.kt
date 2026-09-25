@@ -1,27 +1,21 @@
 package com.minax333.wikihub.ui
 
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -33,10 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.minax333.wikihub.data.Article
 import com.minax333.wikihub.data.ArticleBlock
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun ArticleEditorScreen(
@@ -97,7 +91,9 @@ fun ArticleEditorScreen(
         }
 
         if (blocks.isEmpty()) {
-            blocks = listOf(ArticleBlock.Text(""))
+            blocks = listOf(
+                ArticleBlock.Text("")
+            )
         }
     }
 
@@ -147,7 +143,9 @@ fun ArticleEditorScreen(
         }
 
     val linkableArticles = existingArticles
-        .filter { it.id != article?.id }
+        .filter {
+            it.id != article?.id
+        }
 
     if (showLinkDialog) {
         AlertDialog(
@@ -169,6 +167,7 @@ fun ArticleEditorScreen(
 
                             TextButton(
                                 onClick = {
+
                                     addBlock(
                                         ArticleBlock.InternalLink(
                                             articleId = targetArticle.id,
@@ -181,8 +180,7 @@ fun ArticleEditorScreen(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = targetArticle.title,
-                                    modifier = Modifier.fillMaxWidth()
+                                    text = targetArticle.title
                                 )
                             }
                         }
@@ -201,44 +199,181 @@ fun ArticleEditorScreen(
         )
     }
 
-    Column(
+    LazyColumn(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(paddingValues)
-            .padding(16.dp)
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        OutlinedTextField(
-            value = title,
-            onValueChange = {
-                title = it
-                errorMessage = null
-            },
-            label = {
-                Text("記事タイトル")
-            },
-            placeholder = {
-                Text("記事のタイトルを入力")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .sizeIn(
-                    minHeight = 56.dp
-                ),
-            singleLine = true
-        )
+        item {
 
-        Spacer(
-            modifier = Modifier.height(12.dp)
-        )
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-        ) {
+            OutlinedTextField(
+                value = title,
+                onValueChange = {
+                    title = it
+                    errorMessage = null
+                },
+                label = {
+                    Text("記事タイトル")
+                },
+                placeholder = {
+                    Text("記事のタイトル")
+                },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
 
-            Text("ブロックを追加")
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+
+            Text("本文")
+
+            Spacer(
+                modifier = Modifier.height(8.dp)
+            )
+        }
+
+        items(
+            items = blocks.indices.toList(),
+            key = { it }
+        ) { index ->
+
+            when (val block = blocks[index]) {
+
+                is ArticleBlock.Text -> {
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        OutlinedTextField(
+                            value = block.text,
+                            onValueChange = {
+                                updateBlock(
+                                    index,
+                                    ArticleBlock.Text(it)
+                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = {
+                                Text("本文を入力")
+                            },
+                            minLines = 5
+                        )
+
+                        TextButton(
+                            onClick = {
+                                deleteBlock(index)
+                            }
+                        ) {
+                            Text("この文章を削除")
+                        }
+                    }
+                }
+
+                is ArticleBlock.Image -> {
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        Text("画像")
+
+                        Text(
+                            text = block.uri,
+                            maxLines = 1
+                        )
+
+                        TextButton(
+                            onClick = {
+                                deleteBlock(index)
+                            }
+                        ) {
+                            Text("画像を削除")
+                        }
+                    }
+                }
+
+                is ArticleBlock.Video -> {
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        Text("動画")
+
+                        Text(
+                            text = block.uri,
+                            maxLines = 1
+                        )
+
+                        TextButton(
+                            onClick = {
+                                deleteBlock(index)
+                            }
+                        ) {
+                            Text("動画を削除")
+                        }
+                    }
+                }
+
+                is ArticleBlock.Audio -> {
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        Text("音声")
+
+                        Text(
+                            text = block.uri,
+                            maxLines = 1
+                        )
+
+                        TextButton(
+                            onClick = {
+                                deleteBlock(index)
+                            }
+                        ) {
+                            Text("音声を削除")
+                        }
+                    }
+                }
+
+                is ArticleBlock.InternalLink -> {
+
+                    Column(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+
+                        Text(
+                            text = "内部リンク: ${block.label}"
+                        )
+
+                        TextButton(
+                            onClick = {
+                                deleteBlock(index)
+                            }
+                        ) {
+                            Text("リンクを削除")
+                        }
+                    }
+                }
+            }
+
+            HorizontalDivider()
+        }
+
+        item {
+
+            Text("追加")
 
             Spacer(
                 modifier = Modifier.height(8.dp)
@@ -248,6 +383,7 @@ fun ArticleEditorScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+
                 OutlinedButton(
                     onClick = {
                         addBlock(
@@ -256,7 +392,7 @@ fun ArticleEditorScreen(
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("テキスト")
+                    Text("文章")
                 }
 
                 OutlinedButton(
@@ -279,6 +415,7 @@ fun ArticleEditorScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+
                 OutlinedButton(
                     onClick = {
                         videoLauncher.launch(
@@ -300,159 +437,41 @@ fun ArticleEditorScreen(
                 ) {
                     Text("音声")
                 }
-
-                OutlinedButton(
-                    onClick = {
-                        showLinkDialog = true
-                    },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("内部リンク")
-                }
             }
 
             Spacer(
-                modifier = Modifier.height(12.dp)
+                modifier = Modifier.height(8.dp)
             )
 
-            HorizontalDivider()
+            OutlinedButton(
+                onClick = {
+                    showLinkDialog = true
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("内部リンク")
+            }
 
             Spacer(
-                modifier = Modifier.height(12.dp)
+                modifier = Modifier.height(16.dp)
             )
-
-            blocks.forEachIndexed { index, block ->
-
-                when (block) {
-
-                    is ArticleBlock.Text -> {
-                        Card(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(12.dp)
-                            ) {
-                                Text("テキスト")
-
-                                Spacer(
-                                    modifier = Modifier.height(8.dp)
-                                )
-
-                                OutlinedTextField(
-                                    value = block.text,
-                                    onValueChange = {
-                                        updateBlock(
-                                            index,
-                                            ArticleBlock.Text(it)
-                                        )
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    minLines = 4
-                                )
-
-                                TextButton(
-                                    onClick = {
-                                        deleteBlock(index)
-                                    }
-                                ) {
-                                    Text("このブロックを削除")
-                                }
-                            }
-                        }
-                    }
-
-                    is ArticleBlock.Image -> {
-                        MediaBlockCard(
-                            title = "画像",
-                            uri = block.uri,
-                            onDelete = {
-                                deleteBlock(index)
-                            }
-                        )
-                    }
-
-                    is ArticleBlock.Video -> {
-                        MediaBlockCard(
-                            title = "動画",
-                            uri = block.uri,
-                            onDelete = {
-                                deleteBlock(index)
-                            }
-                        )
-                    }
-
-                    is ArticleBlock.Audio -> {
-                        MediaBlockCard(
-                            title = "音声",
-                            uri = block.uri,
-                            onDelete = {
-                                deleteBlock(index)
-                            }
-                        )
-                    }
-
-                    is ArticleBlock.InternalLink -> {
-                        Card(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(12.dp)
-                            ) {
-                                Text("内部リンク")
-
-                                Spacer(
-                                    modifier = Modifier.height(4.dp)
-                                )
-
-                                Text(
-                                    "リンク先: ${block.label}"
-                                )
-
-                                Spacer(
-                                    modifier = Modifier.height(4.dp)
-                                )
-
-                                Text(
-                                    "Article ID: ${block.articleId}"
-                                )
-
-                                TextButton(
-                                    onClick = {
-                                        deleteBlock(index)
-                                    }
-                                ) {
-                                    Text("このブロックを削除")
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (index < blocks.lastIndex) {
-                    Spacer(
-                        modifier = Modifier.height(8.dp)
-                    )
-                }
-            }
 
             if (errorMessage != null) {
-                Spacer(
-                    modifier = Modifier.height(12.dp)
-                )
 
                 Text(
                     text = errorMessage!!
                 )
-            }
 
-            Spacer(
-                modifier = Modifier.height(12.dp)
-            )
+                Spacer(
+                    modifier = Modifier.height(8.dp)
+                )
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+
                 OutlinedButton(
                     onClick = onCancel,
                     modifier = Modifier.weight(1f)
@@ -462,9 +481,12 @@ fun ArticleEditorScreen(
 
                 Button(
                     onClick = {
+
                         if (title.trim().isEmpty()) {
+
                             errorMessage =
                                 "記事タイトルを入力してください。"
+
                             return@Button
                         }
 
@@ -482,40 +504,8 @@ fun ArticleEditorScreen(
             }
 
             Spacer(
-                modifier = Modifier.height(16.dp)
+                modifier = Modifier.height(24.dp)
             )
-        }
-    }
-}
-
-@Composable
-private fun MediaBlockCard(
-    title: String,
-    uri: String,
-    onDelete: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp)
-        ) {
-            Text(title)
-
-            Spacer(
-                modifier = Modifier.height(4.dp)
-            )
-
-            Text(
-                text = uri,
-                maxLines = 2
-            )
-
-            TextButton(
-                onClick = onDelete
-            ) {
-                Text("このブロックを削除")
-            }
         }
     }
 }
